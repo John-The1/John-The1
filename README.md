@@ -8,9 +8,6 @@
   <img src="https://skillicons.dev/icons?i=unity" height="60" alt="unity logo" />
   <img width="12" />
 
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/shopify/shopify-original.svg" height="60" alt="shopify logo" />
-  <img width="12" />
-
   <img src="https://skillicons.dev/icons?i=html" height="60" alt="html logo" />
   <img width="12" />
 
