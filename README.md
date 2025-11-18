@@ -22,36 +22,28 @@
 
 <div align="center">
 
-  <a href="https://github.com/YOUR_USERNAME" target="_blank">
-    <img src="https://skillicons.dev/icons?i=cs" height="60" alt="csharp logo" />
+  <a href="YOUR_LINKEDIN_URL" target="_blank">
+    <img src="https://img.shields.io/static/v1?message=LinkedIn&logo=linkedin&label=&color=0077B5&logoColor=white&labelColor=&style=for-the-badge" height="25" alt="linkedin logo" />
   </a>
-  <img width="12" />
 
-  <a href="https://github.com/YOUR_USERNAME" target="_blank">
-    <img src="https://skillicons.dev/icons?i=unity" height="60" alt="unity logo" />
+  <a href="YOUR_TWITTER_URL" target="_blank">
+    <img src="https://img.shields.io/static/v1?message=Twitter&logo=twitter&label=&color=1DA1F2&logoColor=white&labelColor=&style=for-the-badge" height="25" alt="twitter logo" />
   </a>
-  <img width="12" />
 
-  <a href="https://github.com/YOUR_USERNAME" target="_blank">
-    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/shopify/shopify-original.svg" height="60" alt="shopify logo" />
+  <a href="YOUR_DISCORD_INVITE_OR_USER_LINK" target="_blank">
+    <img src="https://img.shields.io/static/v1?message=Discord&logo=discord&label=&color=7289DA&logoColor=white&labelColor=&style=for-the-badge" height="25" alt="discord logo" />
   </a>
-  <img width="12" />
 
-  <a href="https://github.com/YOUR_USERNAME" target="_blank">
-    <img src="https://skillicons.dev/icons?i=html" height="60" alt="html logo" />
+  <a href="YOUR_TWITCH_URL" target="_blank">
+    <img src="https://img.shields.io/static/v1?message=Twitch&logo=twitch&label=&color=9146FF&logoColor=white&labelColor=&style=for-the-badge" height="25" alt="twitch logo" />
   </a>
-  <img width="12" />
 
-  <a href="https://github.com/YOUR_USERNAME" target="_blank">
-    <img src="https://skillicons.dev/icons?i=css" height="60" alt="css logo" />
-  </a>
-  <img width="12" />
-
-  <a href="https://github.com/YOUR_USERNAME" target="_blank">
-    <img src="https://skillicons.dev/icons?i=python" height="60" alt="python logo" />
+  <a href="YOUR_DEVTO_PROFILE" target="_blank">
+    <img src="https://img.shields.io/static/v1?message=dev.to&logo=dev.to&label=&color=0A0A0A&logoColor=white&labelColor=&style=for-the-badge" height="25" alt="devto logo" />
   </a>
 
 </div>
+
 ###
 
 <div align="center">
