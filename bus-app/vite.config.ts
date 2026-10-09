@@ -20,6 +20,7 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [react(), config],
     server: {
+      host: true, // reachable from your phone on the same Wi-Fi
       proxy: {
         '/proxy/rejseplanen': {
           target: 'https://www.rejseplanen.dk',

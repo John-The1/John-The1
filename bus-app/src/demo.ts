@@ -13,8 +13,8 @@ export function demoJourneys(arriveBy: Date): Journey[] {
     const dep = new Date(arr.getTime() - 9 * MIN);
     const delay = [0, 2, 0, 4, 0, 1, 0, 0, 3][i];
     out.push({
-      line: i % 3 === 2 ? '35' : '33',
-      direction: i % 3 === 2 ? 'Lufthavnen st.' : 'Cirklen',
+      line: '35',
+      direction: 'Cirklen',
       fromStop: stop,
       plannedDep: dep,
       realDep: new Date(dep.getTime() + delay * MIN),

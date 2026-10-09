@@ -29,7 +29,11 @@ export function buildPlan(
   const target = targetTime(s, now);
   const warnings: string[] = [];
 
-  const all: Candidate[] = journeys.map((j) => {
+  const wanted = s.lineFilter.trim().toUpperCase();
+  const matching = wanted ? journeys.filter((j) => j.line.split(' → ')[0].toUpperCase() === wanted) : journeys;
+  if (wanted && journeys.length && !matching.length) warnings.push(`No line ${s.lineFilter} trips found – other lines exist; clear the line filter in Settings to see them.`);
+
+  const all: Candidate[] = matching.map((j) => {
     const w = walk(home, j.fromStop, s.walkSpeedKmh);
     return {
       ...j,
@@ -65,7 +69,7 @@ export function buildPlan(
     status = 'missed';
     warnings.push('You are about to miss / have missed the last bus that arrives in time.');
   } else {
-    warnings.push('No bus found that arrives before your deadline.');
+    if (!warnings.length) warnings.push(`No ${wanted ? 'line ' + s.lineFilter : 'bus'} found that arrives before your deadline.`);
   }
 
   for (const c of cancelled) {

@@ -28,7 +28,7 @@ function Stat({ label, value, sub }: { label: string; value: string; sub?: strin
   );
 }
 
-export default function Dashboard({ plan, settings, loading, onRefresh }: { plan: Plan; settings: Settings; loading: boolean; onRefresh: () => void }) {
+export default function Dashboard({ plan, settings, loading, onRefresh: _ }: { plan: Plan; settings: Settings; loading: boolean; onRefresh: () => void }) {
   const [now, setNow] = useState(new Date());
   useEffect(() => { const id = setInterval(() => setNow(new Date()), 1000); return () => clearInterval(id); }, []);
 
@@ -49,7 +49,7 @@ export default function Dashboard({ plan, settings, loading, onRefresh }: { plan
           </span>
         )}
         <span className="text-zinc-500">updated {hm(plan.fetchedAt)}{loading ? ' …' : ''}</span>
-        <button onClick={onRefresh} className="ml-auto text-zinc-400 hover:text-zinc-100">↻ Refresh</button>
+        
       </div>
 
       {plan.warnings.length > 0 && (
@@ -62,9 +62,9 @@ export default function Dashboard({ plan, settings, loading, onRefresh }: { plan
         </div>
       )}
 
-      <section className={`rounded-3xl border p-8 text-center ${st.ring}`}>
+      <section className={`rounded-3xl border px-4 py-8 text-center sm:p-8 ${st.ring}`}>
         <div className="text-sm font-medium uppercase tracking-[0.2em] text-zinc-400">Leave home at</div>
-        <div className="mt-2 text-8xl font-bold tabular-nums tracking-tight sm:text-9xl">{best ? hm(best.leaveAt) : '--:--'}</div>
+        <div className="mt-2 text-7xl font-bold tabular-nums tracking-tight min-[400px]:text-8xl sm:text-9xl">{best ? hm(best.leaveAt) : '--:--'}</div>
         {best && (
           <div className="mt-4 text-3xl font-semibold tabular-nums">
             {status === 'missed' ? st.label : <>in {countdown(best.leaveAt.getTime() - now.getTime())}</>}
@@ -74,7 +74,7 @@ export default function Dashboard({ plan, settings, loading, onRefresh }: { plan
       </section>
 
       {best && (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 [&>*:last-child:nth-child(odd)]:col-span-2 sm:[&>*:last-child:nth-child(odd)]:col-span-1">
           <Stat label="Bus" value={`Line ${best.line}`} sub={best.direction ? `towards ${best.direction}` : undefined} />
           <Stat label="Departs" value={hm(best.realDep)} sub={`from ${best.fromStop.name}${best.delayMin ? ` (sched. ${hm(best.plannedDep)})` : ''}`} />
           <Stat label="Arrives" value={hm(best.realArr)} sub={`deadline ${hm(plan.target)}`} />

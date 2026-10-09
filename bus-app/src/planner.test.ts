@@ -10,9 +10,14 @@ const j = (dep: string, arr: string, o: Partial<Journey> = {}): Journey => ({
   line: '35', direction: 'X', fromStop: stop, plannedDep: at(dep), realDep: at(dep),
   plannedArr: at(arr), realArr: at(arr), realtime: true, cancelled: false, ...o,
 });
-const s = { ...DEFAULTS, arrivalDate: '2026-10-08', arrivalTime: '08:30', arriveEarlyMin: 0, bufferMin: 5 };
+const s = { ...DEFAULTS, lineFilter: '', arrivalDate: '2026-10-08', arrivalTime: '08:30', arriveEarlyMin: 0, bufferMin: 5 };
 
 describe('buildPlan', () => {
+  it('only uses the configured line', () => {
+    const p = buildPlan([j('07:50', '08:00'), j('08:10', '08:20', { line: '33' })], home, { ...s, lineFilter: '35' }, at('07:00'), 'live');
+    expect(p.best?.line).toBe('35');
+    expect(p.best?.plannedDep).toEqual(at('07:50'));
+  });
   it('picks the latest bus that arrives in time', () => {
     const p = buildPlan([j('07:50', '08:00'), j('08:10', '08:20'), j('08:25', '08:35')], home, s, at('07:00'), 'live');
     expect(p.best?.plannedDep).toEqual(at('08:10'));

@@ -1,6 +1,7 @@
 export interface Settings {
   homeAddress: string;
   destinationName: string;
+  lineFilter: string; // only consider this bus line ("" = any)
   arrivalDate: string; // YYYY-MM-DD ('' = today)
   arrivalTime: string; // HH:MM
   walkSpeedKmh: number;

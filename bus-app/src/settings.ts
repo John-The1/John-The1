@@ -3,6 +3,7 @@ import type { Settings } from './types';
 export const DEFAULTS: Settings = {
   homeAddress: 'Møllegade 14L, Dragør',
   destinationName: 'Cirklen, Dragør',
+  lineFilter: '35',
   arrivalDate: '',
   arrivalTime: '08:30',
   walkSpeedKmh: 4.8,

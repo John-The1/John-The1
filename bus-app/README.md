@@ -19,3 +19,6 @@ Flow: DAWA geocodes your address → `location.nearbystops` → `location.name` 
 
 ## Layout
 `src/rejseplanen.ts` API client · `src/planner.ts` pure selection logic (tested) · `src/demo.ts` simulated data · `Dashboard.tsx` / `SettingsPanel.tsx` UI.
+
+## On your phone
+`npm run dev` also prints a `Network:` URL (e.g. `http://192.168.x.x:5173`). Open it on a phone on the same Wi-Fi. Pull down to refresh; the bottom bar nudges the arrival time ±15 min. Note: the dev proxy (and your API key) is then reachable by devices on your network.

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { buildPlan, targetTime } from './planner';
 import { fetchLive, hasEnvKey } from './rejseplanen';
 import { DEMO_HOME, demoJourneys } from './demo';
@@ -45,17 +45,25 @@ export default function App() {
   }, [refresh, settings.refreshSec]);
 
   const update = (s: Settings) => { setSettings(s); saveSettings(s); };
+  const pull = useRef(-1);
+  const nudge = (min: number) => {
+    const [h, m] = settings.arrivalTime.split(':').map(Number);
+    const t = (((h * 60 + m + min) % 1440) + 1440) % 1440;
+    update({ ...settings, arrivalTime: `${String(Math.floor(t / 60)).padStart(2, '0')}:${String(t % 60).padStart(2, '0')}` });
+  };
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-6">
-      <header className="mb-6 flex items-center justify-between">
-        <h1 className="text-lg font-semibold text-zinc-400">🚌 Leave Home</h1>
-        <button onClick={() => setShowSettings((v) => !v)} className="rounded-lg border border-zinc-700 px-3 py-1.5 text-sm hover:bg-zinc-800">
-          {showSettings ? 'Close' : 'Settings'}
-        </button>
+    <div
+      className="mx-auto min-h-screen max-w-3xl px-4 pb-28 pt-[max(1rem,env(safe-area-inset-top))]"
+      onTouchStart={(e) => { pull.current = window.scrollY === 0 ? e.touches[0].clientY : -1; }}
+      onTouchEnd={(e) => { if (pull.current >= 0 && e.changedTouches[0].clientY - pull.current > 90) refresh(); pull.current = -1; }}
+    >
+      <header className="mb-4 flex items-center justify-between">
+        <h1 className="text-lg font-semibold text-zinc-400">🚌 Leave Home · Line {settings.lineFilter || 'any'}</h1>
+        <button onClick={() => setShowSettings(true)} aria-label="Settings" className="h-11 w-11 rounded-xl border border-zinc-700 text-xl active:bg-zinc-800">⚙</button>
       </header>
 
-      {showSettings && <SettingsPanel settings={settings} onChange={update} envKey={envKey} />}
+      {showSettings && <SettingsPanel settings={settings} onChange={update} onClose={() => setShowSettings(false)} envKey={envKey} />}
 
       {error && (
         <div className="mb-4 rounded-xl border border-red-500/40 bg-red-500/10 p-4 text-sm text-red-200">
@@ -71,6 +79,19 @@ export default function App() {
 
       {plan && <Dashboard plan={plan} settings={settings} loading={loading} onRefresh={refresh} />}
       {!plan && !error && <p className="text-zinc-500">Loading…</p>}
+
+      {/* Thumb-reach bar: nudge the arrival deadline and refresh */}
+      <nav className="fixed inset-x-0 bottom-0 z-10 border-t border-zinc-800 bg-zinc-950/95 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 backdrop-blur">
+        <div className="mx-auto flex max-w-3xl items-center gap-2">
+          <button onClick={() => nudge(-15)} className="h-12 flex-1 rounded-xl border border-zinc-700 active:bg-zinc-800">−15</button>
+          <div className="flex-[2] text-center leading-tight">
+            <div className="text-[11px] uppercase tracking-wider text-zinc-500">Arrive by</div>
+            <div className="text-xl font-semibold tabular-nums">{settings.arrivalTime}</div>
+          </div>
+          <button onClick={() => nudge(15)} className="h-12 flex-1 rounded-xl border border-zinc-700 active:bg-zinc-800">+15</button>
+          <button onClick={refresh} aria-label="Refresh" className="h-12 w-14 rounded-xl bg-sky-600 text-xl active:bg-sky-700">{loading ? '…' : '↻'}</button>
+        </div>
+      </nav>
     </div>
   );
 }
