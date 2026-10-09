@@ -1,49 +1,43 @@
 export interface Settings {
   homeAddress: string;
   destinationName: string;
-  lineFilter: string; // only consider this bus line ("" = any)
-  arrivalDate: string; // YYYY-MM-DD ('' = today)
-  arrivalTime: string; // HH:MM
+  line: string; // label only, e.g. "35"
+  stopName: string; // the stop you walk to
+  arrivalTime: string; // usual "be there by" time, HH:MM
+  activeDays: number[]; // 0 = Sunday … 6 = Saturday
+  walkMeters: number; // walking distance to the stop
   walkSpeedKmh: number;
-  bufferMin: number; // safety buffer before the bus leaves
-  arriveEarlyMin: number; // how long before the required time I want to be there
-  refreshSec: number; // 30–60
-  demoMode: boolean;
-  accessId: string; // optional; overrides REJSEPLANEN_ACCESS_ID from .env
+  bufferMin: number; // safety buffer
+  arriveEarlyMin: number; // how early you want to arrive
+  rideMin: number; // minutes on the bus
+  weekday: string[]; // departure times Mon–Fri, HH:MM
+  weekend: string[]; // departure times Sat–Sun
+  notify: boolean;
 }
 
-export interface Coord { lat: number; lon: number }
-export interface Stop extends Coord { id: string; name: string }
-
-/** One bus journey, normalised from Rejseplanen (or the demo generator). */
-export interface Journey {
-  line: string;
-  direction: string;
-  fromStop: Stop;
-  plannedDep: Date;
-  realDep: Date; // equals plannedDep when no realtime data
-  plannedArr: Date;
-  realArr: Date;
-  realtime: boolean; // true if Rejseplanen supplied realtime times
-  cancelled: boolean;
+/** One-day tweaks that reset automatically the next day. */
+export interface Override {
+  date: string; // YYYY-MM-DD
+  arrivalTime?: string;
+  dep?: string; // chosen departure HH:MM
 }
 
-export interface Candidate extends Journey {
-  walkMin: number;
-  walkMeters: number;
-  leaveAt: Date; // realDep - walk - buffer
-  delayMin: number;
-  arrivesInTime: boolean;
+export interface Option {
+  dep: Date;
+  arr: Date;
+  onTime: boolean;
+  leaveAt: Date;
 }
 
-export type Status = 'ok' | 'hurry' | 'late' | 'missed' | 'none';
+export type Status = 'ok' | 'soon' | 'now';
 
 export interface Plan {
+  day: Date;
+  isToday: boolean;
+  deadline: Date;
+  walkMin: number;
+  options: Option[];
+  chosen: Option;
   status: Status;
-  best?: Candidate;
-  others: Candidate[]; // other options, soonest first
-  warnings: string[];
-  target: Date; // latest acceptable arrival
-  source: 'live' | 'demo';
-  fetchedAt: Date;
+  missedEarlier: boolean; // today's bus has already gone, showing the next day
 }
