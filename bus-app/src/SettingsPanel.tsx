@@ -23,9 +23,17 @@ function Stepper({ value, onChange, step = 1, min, max, unit }: { value: number;
   );
 }
 
+/** Pulls every H:MM / HH.MM time out of free text. */
+export function parseTimes(text: string): string[] {
+  const out: string[] = [];
+  for (const m of text.matchAll(/\b([01]?\d|2[0-3])[:.]([0-5]\d)\b/g)) out.push(`${m[1].padStart(2, '0')}:${m[2]}`);
+  return out;
+}
+
 function Timetable({ s, onChange }: { s: Settings; onChange: (s: Settings) => void }) {
   const [tab, setTab] = useState<'weekday' | 'weekend'>('weekday');
   const [time, setTime] = useState('');
+  const [paste, setPaste] = useState('');
   const [gen, setGen] = useState({ from: '06:00', to: '09:00', every: 20 });
   const list = s[tab];
   const setList = (l: string[]) => onChange({ ...s, [tab]: [...new Set(l)].sort() });
@@ -56,6 +64,11 @@ function Timetable({ s, onChange }: { s: Settings; onChange: (s: Settings) => vo
         <input type="time" className={input} value={time} onChange={(e) => setTime(e.target.value)} />
         <button onClick={() => { if (time) { setList([...list, time]); setTime(''); } }} className="h-12 rounded-xl bg-sky-600 px-5 font-medium active:bg-sky-700">Add</button>
       </div>
+      <details className="rounded-xl border border-zinc-800 p-3 text-sm">
+        <summary className="cursor-pointer text-zinc-400">Paste times copied from Rejseplanen / Moovit</summary>
+        <textarea rows={4} className="mt-3 w-full rounded-xl border border-zinc-700 bg-zinc-950 p-3 text-base outline-none focus:border-sky-500" placeholder="05:12 05:27 05:42 ... (any text; 7.05 and 07:05 both work)" value={paste} onChange={(e) => setPaste(e.target.value)} />
+        <button onClick={() => { setList([...list, ...parseTimes(paste)]); setPaste(''); }} className="mt-3 h-11 w-full rounded-xl border border-zinc-700 active:bg-zinc-800">Add the times found ({parseTimes(paste).length})</button>
+      </details>
       <details className="rounded-xl border border-zinc-800 p-3 text-sm">
         <summary className="cursor-pointer text-zinc-400">Buses run at a regular interval? Generate</summary>
         <div className="mt-3 grid grid-cols-3 gap-2">
