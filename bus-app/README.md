@@ -11,7 +11,7 @@ npm run build && npm run preview
 npm test
 ```
 
-On first run open ⚙ Settings and enter: bus departure times (Mon–Fri / Sat–Sun, or generate by interval), your arrival time, commute days, walking distance and ride time. Distance (300 m) and ride time (10 min) are placeholders – set your real values.
+It ships with a **demo timetable** (marked DEMO DATA – not the real line 35 schedule). To use real times, open ⚙ Settings and enter/paste the bus departure times (Mon–Fri / Sat–Sun, or generate by interval), your arrival time, commute days, walking distance and ride time. Distance (300 m) and ride time (10 min) are placeholders – set your real values.
 
 Leave time = departure − walking time − safety buffer. It picks the latest bus that arrives in time, rolls over to the next commute day once today's bus is out of reach, and lets you change the arrival time or pick another bus for today only.
 

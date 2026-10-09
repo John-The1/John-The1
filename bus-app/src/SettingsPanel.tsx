@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { walkMinutes } from './planner';
+import { SAMPLE_WEEKDAY, SAMPLE_WEEKEND } from './settings';
 import type { Settings } from './types';
 
 const input = 'h-12 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 text-base text-zinc-100 outline-none focus:border-sky-500';
@@ -36,7 +37,7 @@ function Timetable({ s, onChange }: { s: Settings; onChange: (s: Settings) => vo
   const [paste, setPaste] = useState('');
   const [gen, setGen] = useState({ from: '06:00', to: '09:00', every: 20 });
   const list = s[tab];
-  const setList = (l: string[]) => onChange({ ...s, [tab]: [...new Set(l)].sort() });
+  const setList = (l: string[]) => onChange({ ...s, sample: false, [tab]: [...new Set(l)].sort() });
 
   const generate = () => {
     const toMin = (t: string) => Number(t.slice(0, 2)) * 60 + Number(t.slice(3, 5));
@@ -47,6 +48,15 @@ function Timetable({ s, onChange }: { s: Settings; onChange: (s: Settings) => vo
 
   return (
     <Section title={`Line ${s.line} departure times from your stop`}>
+      {s.sample && (
+        <div className="flex items-center justify-between gap-3 rounded-xl border border-violet-500/30 bg-violet-500/10 px-3 py-2.5 text-sm text-violet-200">
+          <span>Demo timetable – not the real schedule.</span>
+          <button onClick={() => onChange({ ...s, sample: false, weekday: [], weekend: [] })} className="h-9 shrink-0 rounded-lg bg-violet-500/20 px-3 active:bg-violet-500/30">Clear</button>
+        </div>
+      )}
+      {!s.sample && (
+        <button onClick={() => onChange({ ...s, sample: true, weekday: SAMPLE_WEEKDAY, weekend: SAMPLE_WEEKEND })} className="text-sm text-zinc-500 underline underline-offset-4">Load demo timetable</button>
+      )}
       <div className="grid grid-cols-2 gap-2">
         {(['weekday', 'weekend'] as const).map((t) => (
           <button key={t} onClick={() => setTab(t)} className={`h-11 rounded-xl border text-sm font-medium ${tab === t ? 'border-sky-500 bg-sky-500/10' : 'border-zinc-700'}`}>
@@ -54,11 +64,11 @@ function Timetable({ s, onChange }: { s: Settings; onChange: (s: Settings) => vo
           </button>
         ))}
       </div>
-      <div className="flex flex-wrap gap-2">
+      <div className="grid max-h-64 grid-cols-4 gap-1.5 overflow-y-auto">
         {list.map((t) => (
-          <button key={t} onClick={() => setList(list.filter((x) => x !== t))} className="h-10 rounded-full bg-zinc-800 px-3 text-sm tabular-nums active:bg-red-900" aria-label={`remove ${t}`}>{t} ✕</button>
+          <button key={t} onClick={() => setList(list.filter((x) => x !== t))} className="h-10 rounded-lg bg-zinc-800 text-sm tabular-nums active:bg-red-900" aria-label={`remove ${t}`}>{t} ✕</button>
         ))}
-        {!list.length && <p className="text-sm text-zinc-500">No times yet.</p>}
+        {!list.length && <p className="col-span-4 text-sm text-zinc-500">No times yet.</p>}
       </div>
       <div className="flex gap-2">
         <input type="time" className={input} value={time} onChange={(e) => setTime(e.target.value)} />
@@ -98,8 +108,6 @@ export default function SettingsPanel({ settings: s, onChange, onClose }: { sett
         <button onClick={onClose} className="h-11 rounded-xl bg-sky-600 px-5 font-medium active:bg-sky-700">Done</button>
       </div>
       <div className="mx-auto w-full max-w-xl flex-1 space-y-4 overflow-y-auto px-4 py-5 pb-[max(2rem,env(safe-area-inset-bottom))]">
-        <Timetable s={s} onChange={onChange} />
-
         <Section title="Your routine">
           <Field label="Be at destination by"><input type="time" className={input} value={s.arrivalTime} onChange={(e) => set('arrivalTime', e.target.value)} /></Field>
           <Field label="Commute days">
@@ -119,10 +127,16 @@ export default function SettingsPanel({ settings: s, onChange, onClose }: { sett
           <Field label="Time on the bus" hint="Departure → arrival at your destination stop"><Stepper value={s.rideMin} min={1} max={90} unit="min" onChange={(n) => set('rideMin', n)} /></Field>
         </Section>
 
+        <Timetable s={s} onChange={onChange} />
+
         <Section title="Route labels">
           <Field label="Starting address"><input className={input} value={s.homeAddress} onChange={(e) => set('homeAddress', e.target.value)} /></Field>
           <Field label="Destination"><input className={input} value={s.destinationName} onChange={(e) => set('destinationName', e.target.value)} /></Field>
-          <Field label="Bus line"><input className={input} value={s.line} onChange={(e) => set('line', e.target.value)} /></Field>
+          <div className="grid grid-cols-2 gap-3">
+            <Field label="Bus line"><input className={input} value={s.line} onChange={(e) => set('line', e.target.value)} /></Field>
+            <Field label="Towards"><input className={input} value={s.direction} onChange={(e) => set('direction', e.target.value)} /></Field>
+          </div>
+          <Field label="Stop you walk to"><input className={input} value={s.stopName} placeholder="e.g. Dragør Stationsplads" onChange={(e) => set('stopName', e.target.value)} /></Field>
         </Section>
 
         <button onClick={toggleNotify} className="flex h-14 w-full items-center justify-between rounded-xl border border-zinc-700 px-4 text-left">

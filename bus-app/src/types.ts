@@ -13,6 +13,8 @@ export interface Settings {
   weekday: string[]; // departure times Mon–Fri, HH:MM
   weekend: string[]; // departure times Sat–Sun
   notify: boolean;
+  direction: string; // label, e.g. "Lufthavnen"
+  sample: boolean; // true while the built-in demo timetable is in use
 }
 
 /** One-day tweaks that reset automatically the next day. */

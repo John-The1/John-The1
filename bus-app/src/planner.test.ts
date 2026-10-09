@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { computePlan, walkMinutes } from './planner';
 import { DEFAULTS } from './settings';
 
-const s = { ...DEFAULTS, weekday: ['07:10', '07:30', '07:50', '08:10'], arrivalTime: '08:10', rideMin: 10, walkMeters: 400, walkSpeedKmh: 4.8, bufferMin: 5, arriveEarlyMin: 0 };
+const s = { ...DEFAULTS, weekend: [], weekday: ['07:10', '07:30', '07:50', '08:10'], arrivalTime: '08:10', rideMin: 10, walkMeters: 400, walkSpeedKmh: 4.8, bufferMin: 5, arriveEarlyMin: 0 };
 const thu = (hhmm: string) => new Date(`2026-10-08T${hhmm}:00`); // Thursday
 const hm = (d: Date) => d.toTimeString().slice(0, 5);
 
