@@ -1,4 +1,4 @@
-import type { Override, Settings } from './types';
+import type { Overrides, Settings } from './types';
 
 /** Demo timetable – plausible but NOT the real line 35 schedule. */
 function every(from: string, to: string, step: number): string[] {
@@ -30,7 +30,7 @@ export const DEFAULTS: Settings = {
 };
 
 const KEY = 'leave-home-v3';
-const OV = 'leave-home-v3-override';
+const OV = 'leave-home-v3-overrides';
 
 export function loadSettings(): Settings {
   try { return { ...DEFAULTS, ...JSON.parse(localStorage.getItem(KEY) ?? '{}') }; } catch { return DEFAULTS; }
@@ -38,9 +38,9 @@ export function loadSettings(): Settings {
 export function saveSettings(s: Settings) {
   try { localStorage.setItem(KEY, JSON.stringify(s)); } catch { /* storage unavailable */ }
 }
-export function loadOverride(): Override | undefined {
-  try { return JSON.parse(localStorage.getItem(OV) ?? 'null') ?? undefined; } catch { return undefined; }
+export function loadOverrides(): Overrides {
+  try { return JSON.parse(localStorage.getItem(OV) ?? '{}') ?? {}; } catch { return {}; }
 }
-export function saveOverride(o?: Override) {
-  try { o ? localStorage.setItem(OV, JSON.stringify(o)) : localStorage.removeItem(OV); } catch { /* ignore */ }
+export function saveOverrides(o: Overrides) {
+  try { localStorage.setItem(OV, JSON.stringify(o)); } catch { /* ignore */ }
 }

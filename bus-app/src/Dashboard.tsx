@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { hm } from './planner';
-import type { Option, Override, Plan, Settings, Status } from './types';
+import { dateKey } from './planner';
+import type { Option, Overrides, Plan, Settings, Status } from './types';
 
 const MIN = 60_000;
 
@@ -21,6 +22,31 @@ function dayLabel(d: Date, now: Date) {
   if (days === 0) return 'Today';
   if (days === 1) return 'Tomorrow';
   return d.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'short' });
+}
+
+function DayStrip({ now, dayKey, autoKey, activeDays, overrides, onSelect }: { now: Date; dayKey: string; autoKey: string; activeDays: number[]; overrides: Overrides; onSelect: (k: string) => void }) {
+  const days = Array.from({ length: 14 }, (_, i) => new Date(now.getFullYear(), now.getMonth(), now.getDate() + i));
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const box = ref.current, el = box?.querySelector<HTMLElement>('[data-sel="true"]');
+    if (box && el) box.scrollTo({ left: el.offsetLeft - box.clientWidth / 2 + el.clientWidth / 2, behavior: 'smooth' });
+  }, [dayKey]);
+  return (
+    <div ref={ref} className="relative -mx-4 mb-4 flex snap-x gap-1.5 overflow-x-auto px-4 [scrollbar-width:none]">
+      {days.map((d, i) => {
+        const k = dateKey(d), sel = k === dayKey, active = activeDays.includes(d.getDay());
+        return (
+          <button key={k} data-sel={sel} onClick={() => onSelect(k)}
+            className={`relative flex h-16 w-14 shrink-0 snap-start flex-col items-center justify-center rounded-2xl border transition active:scale-95 ${sel ? 'border-sky-400 bg-sky-500/15' : 'border-zinc-800 bg-zinc-900/60'} ${active || sel ? '' : 'opacity-40'}`}>
+            <span className="text-[11px] font-medium uppercase text-zinc-400">{i === 0 ? 'Today' : d.toLocaleDateString('en-GB', { weekday: 'short' })}</span>
+            <span className="text-lg font-semibold tabular-nums">{d.getDate()}</span>
+            {overrides[k] && <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-sky-400" />}
+            {k === autoKey && !sel && <span className="absolute bottom-1 h-1 w-4 rounded-full bg-emerald-400/70" />}
+          </button>
+        );
+      })}
+    </div>
+  );
 }
 
 const shiftTime = (t: string, delta: number) => {
@@ -119,13 +145,15 @@ function BusPicker({ plan, onPick }: { plan: Plan; onPick: (o: Option) => void }
 }
 
 interface Props {
-  settings: Settings; plan: Plan | null; now: Date; override?: Override;
-  onPatch: (p: Partial<Override>) => void; onReset: () => void; onOpenSettings: () => void;
+  settings: Settings; plan: Plan | null; now: Date;
+  dayKey: string; autoKey: string; picked: boolean; overrides: Overrides; arrival: string;
+  onSelectDay: (k: string) => void; onPatch: (p: { arrivalTime?: string; dep?: string }) => void; onReset: () => void;
+  onOpenSettings: () => void; onOpenTime: () => void;
 }
 
-export default function Dashboard({ settings, plan, now, override, onPatch, onReset, onOpenSettings }: Props) {
+export default function Dashboard({ settings, plan, now, dayKey, autoKey, picked, overrides, arrival, onSelectDay, onPatch, onReset, onOpenSettings, onOpenTime }: Props) {
   const empty = !settings.weekday.length && !settings.weekend.length;
-  const arrival = override?.arrivalTime ?? settings.arrivalTime;
+  const override = overrides[dayKey];
 
   return (
     <div className="mx-auto min-h-screen max-w-xl px-4 pb-32 pt-[max(1rem,env(safe-area-inset-top))]">
@@ -143,6 +171,11 @@ export default function Dashboard({ settings, plan, now, override, onPatch, onRe
         </div>
       </header>
 
+      <DayStrip now={now} dayKey={dayKey} autoKey={autoKey} activeDays={settings.activeDays} overrides={overrides} onSelect={onSelectDay} />
+      {picked && (
+        <button onClick={() => onSelectDay(autoKey)} className="-mt-2 mb-3 text-xs text-sky-300 underline underline-offset-4">↩ Back to next commute</button>
+      )}
+
       {!plan ? (
         <div className="mt-10 rounded-3xl border border-zinc-800 bg-zinc-900 p-8 text-center">
           <div className="text-5xl">🗓️</div>
@@ -159,10 +192,10 @@ export default function Dashboard({ settings, plan, now, override, onPatch, onRe
       <nav className="fixed inset-x-0 bottom-0 z-10 border-t border-zinc-800/80 bg-zinc-950/90 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 backdrop-blur-xl">
         <div className="mx-auto flex max-w-xl items-center gap-2">
           <button onClick={() => onPatch({ arrivalTime: shiftTime(arrival, -15), dep: undefined })} className="h-12 w-16 rounded-xl border border-zinc-800 bg-zinc-900 font-medium active:bg-zinc-800">−15</button>
-          <div className="flex-1 text-center leading-tight">
-            <div className="text-[11px] uppercase tracking-wider text-zinc-500">Be there by{override?.arrivalTime ? ' · today' : ''}</div>
+          <button onClick={onOpenTime} className="h-12 flex-1 rounded-xl text-center leading-tight active:bg-zinc-900">
+            <div className="text-[11px] uppercase tracking-wider text-zinc-500">Be there by{override?.arrivalTime ? ' · changed' : ''} ▾</div>
             <div className={`text-xl font-semibold tabular-nums ${override?.arrivalTime ? 'text-sky-300' : ''}`}>{arrival}</div>
-          </div>
+          </button>
           <button onClick={() => onPatch({ arrivalTime: shiftTime(arrival, 15), dep: undefined })} className="h-12 w-16 rounded-xl border border-zinc-800 bg-zinc-900 font-medium active:bg-zinc-800">+15</button>
           {override && <button onClick={onReset} aria-label="Back to usual" className="h-12 w-12 rounded-xl bg-sky-600/20 text-sky-300 active:bg-sky-600/30">↺</button>}
         </div>
@@ -173,13 +206,16 @@ export default function Dashboard({ settings, plan, now, override, onPatch, onRe
 
 function PlanView({ settings, plan, now, onPatch, onReset }: Pick<Props, 'settings' | 'now' | 'onPatch' | 'onReset'> & { plan: Plan }) {
   const { chosen, status } = plan;
-  const th = theme[status];
+  const th = plan.gone ? { text: 'text-zinc-400', stroke: '#52525b', pill: 'bg-zinc-800 text-zinc-400', label: 'Bus has left' } : theme[status];
   const msLeft = chosen.leaveAt.getTime() - now.getTime();
   const progress = plan.isToday ? Math.min(1, Math.max(0, 1 - msLeft / (60 * MIN))) : 0;
   const isDefault = chosen === [...plan.options].reverse().find((o) => o.onTime);
 
   return (
     <div className="space-y-5">
+      {!plan.chosen.onTime && !plan.gone && (
+        <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-200">No bus gets you there by {hm(plan.deadline)} – this is the earliest one.</div>
+      )}
       {plan.missedEarlier && (
         <div className="rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">Today's bus has gone – here's your next commute.</div>
       )}
@@ -189,9 +225,11 @@ function PlanView({ settings, plan, now, onPatch, onReset }: Pick<Props, 'settin
         <div className="relative mb-2 text-center text-xs font-semibold uppercase tracking-[0.25em] text-zinc-500">
           {dayLabel(plan.day, now)} · leave home at
         </div>
-        <Ring progress={progress} color={th.stroke} pulse={plan.isToday && status === 'now'}>
+        <Ring progress={plan.gone ? 1 : progress} color={th.stroke} pulse={plan.isToday && !plan.gone && status === 'now'}>
           <div className="text-[5.5rem] font-bold leading-none tabular-nums tracking-tighter min-[400px]:text-8xl">{hm(chosen.leaveAt)}</div>
-          {plan.isToday ? (
+          {plan.gone ? (
+            <div className="mt-3 rounded-full bg-zinc-800 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-zinc-400">This bus has left</div>
+          ) : plan.isToday ? (
             <>
               <div className={`mt-3 text-2xl font-semibold tabular-nums ${th.text}`}>{msLeft > 0 ? `in ${countdown(msLeft)}` : 'Go now!'}</div>
               <div className={`mt-2 rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wider ${th.pill}`}>{th.label}</div>
@@ -201,7 +239,7 @@ function PlanView({ settings, plan, now, onPatch, onReset }: Pick<Props, 'settin
           )}
         </Ring>
         {!isDefault && (
-          <button onClick={onReset} className="relative mx-auto mt-2 block text-xs text-sky-300 underline underline-offset-4">You picked this bus · back to recommended</button>
+          <button onClick={() => onPatch({ dep: undefined })} className="relative mx-auto mt-2 block text-xs text-sky-300 underline underline-offset-4">You picked this bus · back to recommended</button>
         )}
       </section>
 

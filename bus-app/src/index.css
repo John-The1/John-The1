@@ -3,3 +3,6 @@
 @tailwind utilities;
 
 body { @apply bg-zinc-950 selection:bg-sky-500/30 text-zinc-100 antialiased; font-family: ui-sans-serif, system-ui, sans-serif; }
+
+@keyframes sheet { from { transform: translateY(100%); } to { transform: translateY(0); } }
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }

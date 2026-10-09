@@ -17,12 +17,12 @@ export interface Settings {
   sample: boolean; // true while the built-in demo timetable is in use
 }
 
-/** One-day tweaks that reset automatically the next day. */
-export interface Override {
-  date: string; // YYYY-MM-DD
+/** Tweaks for a single date; they expire once the date has passed. */
+export interface DayOverride {
   arrivalTime?: string;
   dep?: string; // chosen departure HH:MM
 }
+export type Overrides = Record<string, DayOverride>; // keyed by YYYY-MM-DD
 
 export interface Option {
   dep: Date;
@@ -42,4 +42,5 @@ export interface Plan {
   chosen: Option;
   status: Status;
   missedEarlier: boolean; // today's bus has already gone, showing the next day
+  gone: boolean; // the chosen bus can no longer be caught (only when a past day/time is picked)
 }
